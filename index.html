@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lamsat Jamal — Landscape & Irrigation BOQ Estimator</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #f4f7f5; color: #1b2e22; }
+    .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    h1 { color: #1e5631; }
+    label { display: block; margin-top: 10px; font-weight: 600; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; }
+    button { background: #1e5631; color: #fff; font-weight: bold; border: none; cursor: pointer; margin-top: 15px; }
+    button:hover { background: #164225; }
+    .result { margin-top: 12px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>🌿 Lamsat Jamal — Landscape BOQ Estimator</h1>
+  <p>Open-source field calculation tool by <strong>Lamsat Jamal Landscaping (لمسة جمال للأعمال اللاندسكيب)</strong>.</p>
+
+  <div class="card">
+    <h3>1. Turf Area & Rolls Estimator</h3>
+    <label>Net Area (m²)</label>
+    <input type="number" id="turfArea" value="120" />
+    <label>Cutting Waste (%)</label>
+    <input type="number" id="turfWaste" value="8" />
+    <button onclick="calcTurf()">Calculate Turf</button>
+    <div class="result" id="turfRes"></div>
+  </div>
+
+  <div class="card">
+    <h3>2. Planting Density Calculator</h3>
+    <label>Bed Area (m²)</label>
+    <input type="number" id="plantArea" value="50" />
+    <label>Plant Spacing (cm)</label>
+    <input type="number" id="spacing" value="30" />
+    <label>Grid Pattern</label>
+    <select id="pattern">
+      <option value="triangular">Triangular (Staggered)</option>
+      <option value="square">Square Grid</option>
+    </select>
+    <button onclick="calcPlants()">Calculate Plants</button>
+    <div class="result" id="plantRes"></div>
+  </div>
+
+  <script>
+    function calcTurf() {
+      const area = parseFloat(document.getElementById('turfArea').value) || 0;
+      const waste = (parseFloat(document.getElementById('turfWaste').value) || 0) / 100;
+      const total = (area * (1 + waste)).toFixed(2);
+      const rolls = Math.ceil(total / 50);
+      document.getElementById('turfRes').innerText = `Total Required: ${total} m² | Standard Rolls (2m x 25m): ${rolls} rolls`;
+    }
+    function calcPlants() {
+      const area = parseFloat(document.getElementById('plantArea').value) || 0;
+      const sp = (parseFloat(document.getElementById('spacing').value) || 1) / 100;
+      const pat = document.getElementById('pattern').value;
+      const unitArea = pat === 'triangular' ? (sp * sp * 0.866) : (sp * sp);
+      const count = Math.ceil(area / unitArea);
+      document.getElementById('plantRes').innerText = `Estimated Plants Needed: ${count} plants`;
+    }
+  </script>
+</body>
+</html>
