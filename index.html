@@ -1,64 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lamsat Jamal — Landscape & Irrigation BOQ Estimator</title>
+  <title>لمسة جمال | حاسبة كميات اللاندسكيب وشبكات الري — Lamsat Jamal BOQ</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #f4f7f5; color: #1b2e22; }
-    .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
-    h1 { color: #1e5631; }
-    label { display: block; margin-top: 10px; font-weight: 600; }
-    input, select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; }
-    button { background: #1e5631; color: #fff; font-weight: bold; border: none; cursor: pointer; margin-top: 15px; }
-    button:hover { background: #164225; }
-    .result { margin-top: 12px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-weight: 600; }
+    :root { --primary: #1e5631; --secondary: #2e7d32; --bg: #f3f7f4; --card: #ffffff; --text: #1b2e22; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 780px; margin: 25px auto; padding: 0 16px; background: var(--bg); color: var(--text); line-height: 1.6; }
+    header { background: var(--primary); color: #fff; padding: 22px; border-radius: 12px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    header h1 { margin: 0; font-size: 1.35rem; }
+    header p { margin: 4px 0 0; font-size: 0.9rem; opacity: 0.9; }
+    .lang-btn { background: #fff; color: var(--primary); border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: auto; margin: 0; }
+    .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 18px; border-top: 4px solid var(--secondary); }
+    .card h3 { margin-top: 0; color: var(--primary); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    label { display: block; margin-top: 8px; font-weight: 600; font-size: 0.92rem; }
+    input, select { width: 100%; padding: 10px; margin-top: 4px; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 1rem; }
+    button.calc-btn { width: 100%; padding: 11px; margin-top: 14px; border-radius: 8px; border: none; background: var(--primary); color: #fff; font-weight: bold; font-size: 1rem; cursor: pointer; }
+    button.calc-btn:hover { background: #143d22; }
+    .result { margin-top: 12px; padding: 12px; background: #e8f5e9; border-radius: 8px; font-weight: 700; color: #143d22; display: none; }
+    footer { text-align: center; font-size: 0.85rem; color: #52665a; margin-top: 25px; padding-bottom: 20px; }
   </style>
 </head>
 <body>
-  <h1>🌿 Lamsat Jamal — Landscape BOQ Estimator</h1>
-  <p>Open-source field calculation tool by <strong>Lamsat Jamal Landscaping (لمسة جمال للأعمال اللاندسكيب)</strong>.</p>
 
+  <header>
+    <div>
+      <h1 id="title">🌿 لمسة جمال للأعمال اللاندسكيب</h1>
+      <p id="subtitle">أداة حصر كميات اللاندسكيب وكثافة الزراعة والاحتياج المائي للري (Open Source BOQ)</p>
+    </div>
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">English</button>
+  </header>
+
+  <!-- 1. Turf Calculator -->
   <div class="card">
-    <h3>1. Turf Area & Rolls Estimator</h3>
-    <label>Net Area (m²)</label>
-    <input type="number" id="turfArea" value="120" />
-    <label>Cutting Waste (%)</label>
-    <input type="number" id="turfWaste" value="8" />
-    <button onclick="calcTurf()">Calculate Turf</button>
+    <h3 id="t1">1. حاسبة النجيل الصناعي والطبيعي (Turf & Rolls)</h3>
+    <div class="grid">
+      <div>
+        <label id="l_turfArea">المساحة الصافية (م²)</label>
+        <input type="number" id="turfArea" value="120" min="0" />
+      </div>
+      <div>
+        <label id="l_turfWaste">نسبة الهالك والقص (%)</label>
+        <input type="number" id="turfWaste" value="8" min="0" max="50" />
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calcTurf()" id="b_turf">احسب كمية النجيل</button>
     <div class="result" id="turfRes"></div>
   </div>
 
+  <!-- 2. Planting Density -->
   <div class="card">
-    <h3>2. Planting Density Calculator</h3>
-    <label>Bed Area (m²)</label>
-    <input type="number" id="plantArea" value="50" />
-    <label>Plant Spacing (cm)</label>
-    <input type="number" id="spacing" value="30" />
-    <label>Grid Pattern</label>
+    <h3 id="t2">2. حاسبة كثافة الزراعة والمسافات (Planting Density)</h3>
+    <div class="grid">
+      <div>
+        <label id="l_plantArea">مساحة الحوض (م²)</label>
+        <input type="number" id="plantArea" value="50" min="0" />
+      </div>
+      <div>
+        <label id="l_spacing">مسافة الزراعة بين النباتات (سم)</label>
+        <input type="number" id="spacing" value="30" min="1" />
+      </div>
+    </div>
+    <label id="l_pattern">نظام توزيع الزراعة</label>
     <select id="pattern">
-      <option value="triangular">Triangular (Staggered)</option>
-      <option value="square">Square Grid</option>
+      <option value="triangular" id="opt_tri">مثلثي متداخل (Triangular / Staggered)</option>
+      <option value="square" id="opt_sq">مربع منتظم (Square Grid)</option>
     </select>
-    <button onclick="calcPlants()">Calculate Plants</button>
+    <button class="calc-btn" onclick="calcPlants()" id="b_plants">احسب عدد الشتلات</button>
     <div class="result" id="plantRes"></div>
   </div>
 
+  <!-- 3. Irrigation Water Demand -->
+  <div class="card">
+    <h3 id="t3">3. حاسبة الاحتياج المائي اليومي للري (Irrigation Demand)</h3>
+    <div class="grid">
+      <div>
+        <label id="l_pCount">عدد النباتات / النخيل</label>
+        <input type="number" id="pCount" value="45" min="0" />
+      </div>
+      <div>
+        <label id="l_liters">المقنن المائي للنبات (لتر / يوم)</label>
+        <input type="number" id="liters" value="60" min="0" />
+      </div>
+    </div>
+    <label id="l_eff">كفاءة شبكة الري (%)</label>
+    <input type="number" id="eff" value="90" min="10" max="100" />
+    <button class="calc-btn" onclick="calcWater()" id="b_water">احسب كمية المياه اليومية</button>
+    <div class="result" id="waterRes"></div>
+  </div>
+
+  <footer id="footerText">
+    تطوير م. محمد خالد — مؤسسة لمسة جمال للأعمال اللاندسكيب | مفتوح المصدر برخصة MIT
+  </footer>
+
   <script>
+    let lang = 'ar';
+
+    function toggleLang() {
+      lang = lang === 'ar' ? 'en' : 'ar';
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('langBtn').innerText = lang === 'ar' ? 'English' : 'العربية';
+
+      const texts = {
+        ar: {
+          title: '🌿 لمسة جمال للأعمال اللاندسكيب',
+          subtitle: 'أداة حصر كميات اللاندسكيب وكثافة الزراعة والاحتياج المائي للري (Open Source BOQ)',
+          t1: '1. حاسبة النجيل الصناعي والطبيعي (Turf & Rolls)',
+          l_turfArea: 'المساحة الصافية (م²)',
+          l_turfWaste: 'نسبة الهالك والقص (%)',
+          b_turf: 'احسب كمية النجيل',
+          t2: '2. حاسبة كثافة الزراعة والمسافات (Planting Density)',
+          l_plantArea: 'مساحة الحوض (م²)',
+          l_spacing: 'مسافة الزراعة بين النباتات (سم)',
+          l_pattern: 'نظام توزيع الزراعة',
+          opt_tri: 'مثلثي متداخل (Triangular / Staggered)',
+          opt_sq: 'مربع منتظم (Square Grid)',
+          b_plants: 'احسب عدد الشتلات',
+          t3: '3. حاسبة الاحتياج المائي اليومي للري (Irrigation Demand)',
+          l_pCount: 'عدد النباتات / النخيل',
+          l_liters: 'المقنن المائي للنبات (لتر / يوم)',
+          l_eff: 'كفاءة شبكة الري (%)',
+          b_water: 'احسب كمية المياه اليومية',
+          footerText: 'تطوير م. محمد خالد — مؤسسة لمسة جمال للأعمال اللاندسكيب | مفتوح المصدر برخصة MIT'
+        },
+        en: {
+          title: '🌿 Lamsat Jamal Landscaping',
+          subtitle: 'Open-Source Landscape BOQ, Planting Density & Irrigation Water Estimator',
+          t1: '1. Turf Area & Standard Rolls Estimator',
+          l_turfArea: 'Net Area (m²)',
+          l_turfWaste: 'Cutting Waste Margin (%)',
+          b_turf: 'Calculate Turf',
+          t2: '2. Planting Density & Grid Estimator',
+          l_plantArea: 'Planting Bed Area (m²)',
+          l_spacing: 'Plant Spacing (cm)',
+          l_pattern: 'Planting Grid Pattern',
+          opt_tri: 'Triangular (Staggered Grid)',
+          opt_sq: 'Square Grid',
+          b_plants: 'Calculate Plants',
+          t3: '3. Daily Irrigation Water Demand (ETc)',
+          l_pCount: 'Number of Plants / Palms',
+          l_liters: 'Water Allowance per Plant (Liters/day)',
+          l_eff: 'Irrigation System Efficiency (%)',
+          b_water: 'Calculate Daily Water',
+          footerText: 'Developed by Eng. Mohammed Khalead — Lamsat Jamal Landscaping | Open Source (MIT License)'
+        }
+      };
+
+      const t = texts[lang];
+      for (const id in t) {
+        if (document.getElementById(id)) document.getElementById(id).innerText = t[id];
+      }
+      document.getElementById('turfRes').style.display = 'none';
+      document.getElementById('plantRes').style.display = 'none';
+      document.getElementById('waterRes').style.display = 'none';
+    }
+
     function calcTurf() {
       const area = parseFloat(document.getElementById('turfArea').value) || 0;
       const waste = (parseFloat(document.getElementById('turfWaste').value) || 0) / 100;
       const total = (area * (1 + waste)).toFixed(2);
       const rolls = Math.ceil(total / 50);
-      document.getElementById('turfRes').innerText = `Total Required: ${total} m² | Standard Rolls (2m x 25m): ${rolls} rolls`;
+      const el = document.getElementById('turfRes');
+      el.style.display = 'block';
+      el.innerText = lang === 'ar'
+        ? `الإجمالي المطلوب شامل الهالك: ${total} م² | عدد الرولات القياسية (2×25م): ${rolls} رول`
+        : `Total Required (with waste): ${total} m² | Standard Rolls (2m × 25m): ${rolls} rolls`;
     }
+
     function calcPlants() {
       const area = parseFloat(document.getElementById('plantArea').value) || 0;
       const sp = (parseFloat(document.getElementById('spacing').value) || 1) / 100;
       const pat = document.getElementById('pattern').value;
       const unitArea = pat === 'triangular' ? (sp * sp * 0.866) : (sp * sp);
       const count = Math.ceil(area / unitArea);
-      document.getElementById('plantRes').innerText = `Estimated Plants Needed: ${count} plants`;
+      const el = document.getElementById('plantRes');
+      el.style.display = 'block';
+      el.innerText = lang === 'ar'
+        ? `عدد الشتلات المطلوبة: ${count} شتلة`
+        : `Estimated Plants Needed: ${count} plants`;
+    }
+
+    function calcWater() {
+      const count = parseFloat(document.getElementById('pCount').value) || 0;
+      const liters = parseFloat(document.getElementById('liters').value) || 0;
+      const eff = (parseFloat(document.getElementById('eff').value) || 90) / 100;
+      const grossM3 = ((count * liters) / eff / 1000).toFixed(3);
+      const el = document.getElementById('waterRes');
+      el.style.display = 'block';
+      el.innerText = lang === 'ar'
+        ? `إجمالي الاحتياج المائي اليومي: ${grossM3} متر مكعب / يوم`
+        : `Gross Daily Water Requirement: ${grossM3} m³/day`;
     }
   </script>
 </body>
